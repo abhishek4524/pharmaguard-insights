@@ -3,17 +3,18 @@ import { AppLayout } from "@/components/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-// supabase integration removed – dashboard will use local data or remain empty
-import { BarChart3, AlertTriangle, Pill, FlaskConical, ArrowRight, Clock } from "lucide-react";
+import { BarChart3, AlertTriangle, Pill, FlaskConical, ArrowRight, Clock, RefreshCw } from "lucide-react";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 interface AnalysisRecord {
   id: string;
   patient_id: string;
   drug: string;
   risk_label: string;
-  confidence_score: number;
+  confidence_score: number;  // stored as 0-1, we'll multiply by 100 for display
   severity: string;
   created_at: string;
 }
@@ -44,18 +45,31 @@ function StatCard({ icon: Icon, label, value, sub, color }: { icon: any; label: 
 }
 
 export default function Dashboard() {
+  const { toast } = useToast();
   const [records, setRecords] = useState<AnalysisRecord[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchRecords = () => {
+    setLoading(true);
+    try {
+      const stored = localStorage.getItem('pharma_history');
+      const data = stored ? JSON.parse(stored) : [];
+      setRecords(data);
+    } catch (err) {
+      console.error('Failed to load history:', err);
+      toast({ title: 'Error', description: 'Failed to load analysis history', variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    // supabase removed; no remote data
-    setRecords([]);
-    setLoading(false);
+    fetchRecords();
   }, []);
 
   const totalAnalyses = records.length;
   const highRiskFlags = records.filter(r => r.risk_label === 'Toxic / Ineffective').length;
-  const drugs = [...new Set(records.map(r => r.drug))].length;
+  const uniqueDrugs = [...new Set(records.map(r => r.drug))].length;
 
   return (
     <AppLayout title="Dashboard" subtitle="Pharmacogenomic Risk Prediction System">
@@ -83,7 +97,7 @@ export default function Dashboard() {
           </Button>
         </div>
 
-        {/* Stats */}
+        {/* Stats with real data */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <StatCard
             icon={BarChart3}
@@ -135,13 +149,20 @@ export default function Dashboard() {
         <Card className="border-border">
           <CardHeader className="pb-3 flex-row items-center justify-between">
             <CardTitle className="text-base">Recent Analyses</CardTitle>
-            <Button asChild variant="outline" size="sm">
-              <Link to="/history">View All</Link>
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={fetchRecords} disabled={loading}>
+                <RefreshCw className={cn("mr-1.5 h-3.5 w-3.5", loading && "animate-spin")} /> Refresh
+              </Button>
+              <Button asChild variant="outline" size="sm">
+                <Link to="/history">View All</Link>
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             {loading ? (
-              <div className="flex items-center justify-center h-24 text-muted-foreground text-sm">Loading...</div>
+              <div className="flex items-center justify-center h-24 text-muted-foreground text-sm">
+                <RefreshCw className="mr-2 h-4 w-4 animate-spin" /> Loading...
+              </div>
             ) : records.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-24 gap-2">
                 <FlaskConical className="h-8 w-8 text-muted-foreground/40" />
@@ -160,31 +181,34 @@ export default function Dashboard() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
-                    {records.slice(0, 5).map(r => (
-                      <tr key={r.id} className="hover:bg-muted/50 transition-colors">
-                        <td className="py-2.5 font-mono text-xs text-muted-foreground">{r.patient_id}</td>
-                        <td className="py-2.5 font-medium">{r.drug}</td>
-                        <td className="py-2.5">
-                          <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${getRiskClass(r.risk_label)}`}>
-                            {r.risk_label}
-                          </span>
-                        </td>
-                        <td className="py-2.5">
-                          <div className="flex items-center gap-2">
-                            <div className="h-1.5 w-16 rounded-full bg-border overflow-hidden">
-                              <div className="h-full rounded-full bg-primary" style={{ width: `${r.confidence_score}%` }} />
+                    {records.slice(0, 5).map(r => {
+                      const confidencePercent = Math.round(r.confidence_score * 100);
+                      return (
+                        <tr key={r.id} className="hover:bg-muted/50 transition-colors">
+                          <td className="py-2.5 font-mono text-xs text-muted-foreground">{r.patient_id}</td>
+                          <td className="py-2.5 font-medium">{r.drug}</td>
+                          <td className="py-2.5">
+                            <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${getRiskClass(r.risk_label)}`}>
+                              {r.risk_label}
+                            </span>
+                          </td>
+                          <td className="py-2.5">
+                            <div className="flex items-center gap-2">
+                              <div className="h-1.5 w-16 rounded-full bg-border overflow-hidden">
+                                <div className="h-full rounded-full bg-primary" style={{ width: `${confidencePercent}%` }} />
+                              </div>
+                              <span className="text-xs text-muted-foreground">{confidencePercent}%</span>
                             </div>
-                            <span className="text-xs text-muted-foreground">{r.confidence_score}%</span>
-                          </div>
-                        </td>
-                        <td className="py-2.5 text-muted-foreground text-xs">
-                          <div className="flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            {format(new Date(r.created_at), 'MMM d, HH:mm')}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                          </td>
+                          <td className="py-2.5 text-muted-foreground text-xs">
+                            <div className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {format(new Date(r.created_at), 'MMM d, HH:mm')}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
