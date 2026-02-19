@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { AnalysisResult } from "@/types/pharma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +15,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
 interface ResultsDisplayProps {
-  result: AnalysisResult;
+  results: AnalysisResult[]; // array of results (one per drug)
 }
 
 function getRiskClass(label: string) {
@@ -50,7 +50,8 @@ function getEvidenceColor(level: string) {
   return map[level] || 'bg-muted text-muted-foreground';
 }
 
-export function ResultsDisplay({ result }: ResultsDisplayProps) {
+// Subcomponent that renders a single result with all details
+function ResultDetail({ result }: { result: AnalysisResult }) {
   const { toast } = useToast();
   const [aiOpen, setAiOpen] = useState(false);
   const jsonStr = JSON.stringify(result, null, 2);
@@ -351,6 +352,40 @@ export function ResultsDisplay({ result }: ResultsDisplayProps) {
           </Card>
         </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+// Main ResultsDisplay component
+export function ResultsDisplay({ results }: ResultsDisplayProps) {
+  const [activeDrug, setActiveDrug] = useState(results[0]?.drug || '');
+
+  if (results.length === 0) return null;
+
+  const activeResult = results.find(r => r.drug === activeDrug) || results[0];
+
+  return (
+    <div className="space-y-4">
+      {/* Drug selector tabs */}
+      <div className="flex flex-wrap gap-2 border-b border-border pb-2">
+        {results.map(result => (
+          <button
+            key={result.drug}
+            onClick={() => setActiveDrug(result.drug)}
+            className={cn(
+              "px-4 py-2 text-sm font-medium rounded-t-lg transition-colors",
+              activeDrug === result.drug
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted"
+            )}
+          >
+            {result.drug}
+          </button>
+        ))}
+      </div>
+
+      {/* Render the active result */}
+      <ResultDetail result={activeResult} />
     </div>
   );
 }
