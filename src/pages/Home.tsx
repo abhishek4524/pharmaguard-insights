@@ -9,8 +9,11 @@ const PharmaGuardHome = () => {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex-shrink-0">
-              <a href="/" className="text-2xl font-semibold bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent">
+              <a href="/" className="flex items-center gap-2">
+              <img src="/logo.png" alt="PharmaGuard" className="h-8 w-8" />
+              <span className="text-2xl font-semibold bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent">
                 PharmaGuard
+              </span>
               </a>
             </div>
 
@@ -53,12 +56,12 @@ const PharmaGuardHome = () => {
               drug safety recommendations for optimal treatment outcomes.
             </p>
             <div className="flex flex-wrap gap-4 pt-4">
-              <button className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium shadow-sm hover:shadow">
+              <a href="/dashboard" className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium shadow-sm hover:shadow">
                 Analyze Patient
-              </button>
-              <button className="border border-gray-300 text-gray-700 px-8 py-3 rounded-lg hover:border-blue-600 hover:text-blue-600 transition-colors duration-200 font-medium">
+              </a>
+              <a href="/settings" className="border border-gray-300 text-gray-700 px-8 py-3 rounded-lg hover:border-blue-600 hover:text-blue-600 transition-colors duration-200 font-medium">
                 Learn More
-              </button>
+              </a>
             </div>
           </div>
 
