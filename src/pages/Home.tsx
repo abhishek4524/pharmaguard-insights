@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { Link } from "react-router-dom";
 import {
   ArrowRight,
   BrainCircuit,
@@ -8,7 +9,6 @@ import {
   ShieldAlert,
   Upload,
 } from "lucide-react";
-import Link from 'react-router-dom'
 
 const Home = () => {
   useEffect(() => {
@@ -42,7 +42,7 @@ const Home = () => {
           <div className="flex justify-between items-center h-16">
             {/* Logo - Fixed nested anchor tags */}
             <div className="flex-shrink-0">
-              <Link href="/" className="flex items-center gap-2">
+              <Link to="/" className="flex items-center gap-2">
                 <img src="/logo.png" alt="PharmaGuard" className="h-8 w-8" />
                 <span className="text-2xl font-semibold bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent">
                   PharmaGuard
@@ -52,37 +52,37 @@ const Home = () => {
 
             {/* Navigation Links */}
             <div className="hidden md:flex items-center space-x-8">
-              <a
-                href="/dashboard"
+              <Link
+                to="/dashboard"
                 className="group relative text-gray-700 hover:text-blue-600 transition-colors duration-300 font-medium"
               >
                 Dashboard
                 <span className="nav-underline" />
-              </a>
-              <a
-                href="/settings"  // Fixed: changed from "/settings" to appropriate path
+              </Link>
+              <Link
+                to="/settings"  // Fixed: changed from "/settings" to appropriate path
                 className="group relative text-gray-700 hover:text-blue-600 transition-colors duration-300 font-medium"
               >
                 How It Works
                 <span className="nav-underline" />
-              </a>
-              <a
-                href="/analysis"
+              </Link>
+              <Link
+                to="/analysis"
                 className="group relative text-gray-700 hover:text-blue-600 transition-colors duration-300 font-medium"
               >
                 Analyze
                 <span className="nav-underline" />
-              </a>
+              </Link>
             </div>
 
             {/* Get Started Button */}
             <div>
-              <a
-                href="/dashboard"
+              <Link
+                to="/dashboard"
                 className="cta-shine bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition-all duration-300 font-medium shadow-sm hover:shadow-lg hover:-translate-y-0.5"
               >
                 Get Started
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -105,18 +105,18 @@ const Home = () => {
             </p>
             {/* Fixed: replaced duplicate buttons with single set of links */}
             <div className="flex flex-wrap gap-4 pt-4">
-              <a
-                href="/dashboard"
+              <Link
+                to="/dashboard"
                 className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-all duration-300 font-medium shadow-sm hover:shadow-lg hover:-translate-y-0.5"
               >
                 Analyze Patient
-              </a>
-              <a
-                href="/how-it-works"
+              </Link>
+              <Link
+                to="/how-it-works"
                 className="border border-gray-300 text-gray-700 px-8 py-3 rounded-lg hover:border-blue-600 hover:text-blue-600 transition-all duration-300 font-medium hover:shadow-md hover:-translate-y-0.5"
               >
                 Learn More
-              </a>
+              </Link>
             </div>
           </div>
 
