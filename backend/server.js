@@ -12,8 +12,13 @@ connectDB();
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:8080' // or your Vite port
+  origin: [
+    "http://localhost:8080",
+    "https://pharmaguard-nu.vercel.app"
+  ],
+  credentials: true
 }));
+
 app.use(express.json());
 
 // Routes

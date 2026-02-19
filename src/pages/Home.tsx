@@ -8,6 +8,7 @@ import {
   ShieldAlert,
   Upload,
 } from "lucide-react";
+import Link from 'react-router-dom'
 
 const Home = () => {
   useEffect(() => {
@@ -41,12 +42,12 @@ const Home = () => {
           <div className="flex justify-between items-center h-16">
             {/* Logo - Fixed nested anchor tags */}
             <div className="flex-shrink-0">
-              <a href="/" className="flex items-center gap-2">
+              <Link href="/" className="flex items-center gap-2">
                 <img src="/logo.png" alt="PharmaGuard" className="h-8 w-8" />
                 <span className="text-2xl font-semibold bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent">
                   PharmaGuard
                 </span>
-              </a>
+              </Link>
             </div>
 
             {/* Navigation Links */}
