@@ -112,7 +112,7 @@ const Home = () => {
                 Analyze Patient
               </Link>
               <Link
-                to="/how-it-works"
+                to="/settings"
                 className="border border-gray-300 text-gray-700 px-8 py-3 rounded-lg hover:border-blue-600 hover:text-blue-600 transition-all duration-300 font-medium hover:shadow-md hover:-translate-y-0.5"
               >
                 Learn More
