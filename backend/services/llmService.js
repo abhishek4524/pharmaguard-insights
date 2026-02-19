@@ -15,7 +15,7 @@ Write a paragraph explaining the result and its implications for the patient.`;
 
   try {
     const response = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || 'gpt-3.5-turbo',
+      model: process.env.OPENAI_MODEL || 'llama-3.3-70b-versatile',
       messages: [
         { role: 'system', content: 'You are a helpful pharmacogenomics assistant.' },
         { role: 'user', content: prompt }

@@ -20,36 +20,7 @@ export default function Settings() {
     <AppLayout title="Settings & About" subtitle="System configuration and documentation">
       <div className="p-6 space-y-6">
         {/* About */}
-        <Card className="border-border">
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <Shield className="h-4 w-4 text-primary" /> About PharmaGuard
-            </CardTitle>
-            <CardDescription>Pharmacogenomic Risk Prediction System v1.0.0</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4 text-sm text-foreground">
-            <p className="leading-relaxed text-muted-foreground">
-              PharmaGuard is a clinical decision support tool that analyzes patient VCF genomic files against a curated pharmacogenomic variant database. It predicts drug interaction risks using CPIC guidelines and generates AI-powered clinical explanations.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              {[
-                { icon: Database, label: 'Database', desc: '18 variants, 12 CPIC guidelines, 6 drugs' },
-                { icon: Brain, label: 'AI Model', desc: 'Lovable AI (Gemini 3 Flash)' },
-                { icon: FlaskConical, label: 'Guidelines', desc: 'CPIC Level A & B Evidence' },
-              ].map(({ icon: Icon, label, desc }) => (
-                <div key={label} className="flex items-start gap-3 rounded-lg border border-border bg-muted/30 p-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 flex-shrink-0">
-                    <Icon className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-xs">{label}</p>
-                    <p className="text-xs text-muted-foreground">{desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+
 
         {/* Supported Drugs */}
         <Card className="border-border">

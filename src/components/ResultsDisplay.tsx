@@ -94,12 +94,12 @@ function ResultDetail({ result }: { result: AnalysisResult }) {
           <p className="text-xs opacity-60 mt-0.5">{format(new Date(result.timestamp), 'PPpp')}</p>
         </div>
         <div className="text-right flex-shrink-0">
-          <p className="text-3xl font-bold">{result.risk_assessment.confidence_score}%</p>
+          <p className="text-3xl font-bold">{result.risk_assessment.confidence_score}</p>
           <p className="text-xs opacity-70">Confidence</p>
           <div className="mt-2 h-2 w-24 rounded-full bg-current/20 overflow-hidden">
             <div
               className="h-full rounded-full bg-current transition-all duration-1000"
-              style={{ width: `${result.risk_assessment.confidence_score}%` }}
+              style={{ width: `${result.risk_assessment.confidence_score}` }}
             />
           </div>
         </div>
