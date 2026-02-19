@@ -3,12 +3,12 @@ import { AppLayout } from "@/components/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
-import { History as HistoryIcon, Eye, Filter, RefreshCw, Clock, Search } from "lucide-react";
+import { History as HistoryIcon, Eye, Filter, RefreshCw, Clock, Search, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { AnalysisResult } from "@/types/pharma";
 import { ResultsDisplay } from "@/components/ResultsDisplay";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 const DRUGS = ['ALL', 'CODEINE', 'WARFARIN', 'CLOPIDOGREL', 'SIMVASTATIN', 'AZATHIOPRINE', 'FLUOROURACIL'];
 const RISKS = ['ALL', 'Safe', 'Adjust Dosage', 'Toxic / Ineffective'];
@@ -20,7 +20,7 @@ interface AnalysisRecord {
   risk_label: string;
   confidence_score: number;
   severity: string;
-  result_json: any;
+  result_json: AnalysisResult;
   created_at: string;
 }
 
@@ -31,21 +31,38 @@ function getRiskClass(label: string) {
 }
 
 export default function History() {
+  const { toast } = useToast();
   const [records, setRecords] = useState<AnalysisRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterDrug, setFilterDrug] = useState('ALL');
   const [filterRisk, setFilterRisk] = useState('ALL');
   const [viewResult, setViewResult] = useState<AnalysisResult | null>(null);
 
-  const fetchRecords = async () => {
+  const fetchRecords = () => {
     setLoading(true);
-    let query = supabase.from('analysis_results').select('*').order('created_at', { ascending: false });
-    const { data } = await query;
-    setRecords(data || []);
-    setLoading(false);
+    try {
+      const stored = localStorage.getItem('pharma_history');
+      const data = stored ? JSON.parse(stored) : [];
+      setRecords(data);
+    } catch (err) {
+      console.error('Failed to load history:', err);
+      toast({ title: 'Error', description: 'Failed to load history', variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { fetchRecords(); }, []);
+  const clearHistory = () => {
+    if (window.confirm('Are you sure you want to clear all history?')) {
+      localStorage.removeItem('pharma_history');
+      setRecords([]);
+      toast({ title: 'History cleared', description: 'All analysis records have been removed.' });
+    }
+  };
+
+  useEffect(() => {
+    fetchRecords();
+  }, []);
 
   const filtered = records.filter(r => {
     if (filterDrug !== 'ALL' && r.drug !== filterDrug) return false;
@@ -58,7 +75,7 @@ export default function History() {
       <AppLayout title="Analysis History" subtitle="View past pharmacogenomic analysis results">
         <div className="p-6 space-y-4">
           <Button variant="outline" onClick={() => setViewResult(null)}>← Back to History</Button>
-          <ResultsDisplay result={viewResult} />
+          <ResultsDisplay results={[viewResult]} />
         </div>
       </AppLayout>
     );
@@ -74,9 +91,16 @@ export default function History() {
                 <HistoryIcon className="h-4 w-4 text-primary" /> All Analyses
                 <Badge variant="secondary" className="ml-1">{filtered.length}</Badge>
               </CardTitle>
-              <Button variant="outline" size="sm" onClick={fetchRecords} disabled={loading}>
-                <RefreshCw className={cn("mr-1.5 h-3.5 w-3.5", loading && "animate-spin")} /> Refresh
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={fetchRecords} disabled={loading}>
+                  <RefreshCw className={cn("mr-1.5 h-3.5 w-3.5", loading && "animate-spin")} /> Refresh
+                </Button>
+                {records.length > 0 && (
+                  <Button variant="destructive" size="sm" onClick={clearHistory}>
+                    <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Clear
+                  </Button>
+                )}
+              </div>
             </div>
           </CardHeader>
 
@@ -131,7 +155,8 @@ export default function History() {
             ) : filtered.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-32 gap-2">
                 <Search className="h-8 w-8 text-muted-foreground/40" />
-                <p className="text-sm text-muted-foreground">No analyses found matching filters.</p>
+                <p className="text-sm text-muted-foreground">No analyses found.</p>
+                <p className="text-xs text-muted-foreground">Run an analysis first, results appear here.</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -178,7 +203,7 @@ export default function History() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => setViewResult(r.result_json as AnalysisResult)}
+                            onClick={() => setViewResult(r.result_json)}
                             className="text-primary hover:text-primary"
                           >
                             <Eye className="mr-1 h-3.5 w-3.5" /> View
