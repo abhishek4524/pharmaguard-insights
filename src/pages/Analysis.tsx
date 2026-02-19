@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 import {
   Upload, FileText, X, CheckCircle, Loader2, ChevronDown, Download, AlertCircle, Dna, FlaskConical
@@ -14,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { AnalysisResult } from "@/types/pharma";
 import { downloadSampleVcf } from "@/lib/sampleVcf";
 import { ResultsDisplay } from "@/components/ResultsDisplay";
+import { analyzeVCF } from "@/api/analyze"; // <-- naya import
 
 const SUPPORTED_DRUGS = ['CODEINE', 'WARFARIN', 'CLOPIDOGREL', 'SIMVASTATIN', 'AZATHIOPRINE', 'FLUOROURACIL'];
 
@@ -29,7 +29,7 @@ export default function Analysis() {
   const [drugDropdownOpen, setDrugDropdownOpen] = useState(false);
   const [manualInput, setManualInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [results, setResults] = useState<AnalysisResult[] | null>(null); // <-- array
 
   const onDrop = useCallback((acceptedFiles: File[], rejectedFiles: any[]) => {
     setVcfError('');
@@ -80,15 +80,8 @@ export default function Analysis() {
 
     setLoading(true);
     try {
-      const vcfContent = await vcfFile.text();
-      const { data, error } = await supabase.functions.invoke('analyze', {
-        body: { vcf_content: vcfContent, drug_list: selectedDrugs },
-      });
-
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
-
-      setResult(data as AnalysisResult);
+      const data = await analyzeVCF(vcfFile, selectedDrugs); // data = array of AnalysisResult
+      setResults(data);
       toast({ title: '✓ Analysis Complete', description: `Risk assessed for ${selectedDrugs.join(', ')}` });
     } catch (err: any) {
       toast({
@@ -106,7 +99,7 @@ export default function Analysis() {
   return (
     <AppLayout title="VCF Analysis" subtitle="Upload genomic data and predict pharmacogenomic risks">
       <div className="p-6 space-y-6">
-        {!result ? (
+        {!results ? (
           <>
             {/* VCF Upload */}
             <Card className="border-border shadow-sm">
@@ -278,11 +271,11 @@ export default function Analysis() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold">Analysis Results</h2>
-              <Button variant="outline" onClick={() => setResult(null)}>
+              <Button variant="outline" onClick={() => setResults(null)}>
                 ← New Analysis
               </Button>
             </div>
-            <ResultsDisplay result={result} />
+            <ResultsDisplay results={results} />
           </div>
         )}
       </div>
