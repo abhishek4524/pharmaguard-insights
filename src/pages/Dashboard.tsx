@@ -3,7 +3,7 @@ import { AppLayout } from "@/components/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
+// supabase integration removed – dashboard will use local data or remain empty
 import { BarChart3, AlertTriangle, Pill, FlaskConical, ArrowRight, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
@@ -48,15 +48,9 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase
-      .from('analysis_results')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(10)
-      .then(({ data }) => {
-        setRecords(data || []);
-        setLoading(false);
-      });
+    // supabase removed; no remote data
+    setRecords([]);
+    setLoading(false);
   }, []);
 
   const totalAnalyses = records.length;

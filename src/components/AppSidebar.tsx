@@ -15,7 +15,7 @@ import { LayoutDashboard, FlaskConical, History, Settings, Shield, ChevronRight 
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
+  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Analysis", url: "/analysis", icon: FlaskConical },
   { title: "History", url: "/history", icon: History },
   { title: "Settings", url: "/settings", icon: Settings },

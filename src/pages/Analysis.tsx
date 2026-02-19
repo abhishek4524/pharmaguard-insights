@@ -67,32 +67,51 @@ export default function Analysis() {
     }
   };
 
-  const handleSubmit = async () => {
-    const validation = analysisSchema.safeParse({ drugs: selectedDrugs });
-    if (!validation.success) {
-      toast({ title: 'Validation Error', description: validation.error.errors[0].message, variant: 'destructive' });
-      return;
-    }
-    if (!vcfFile) {
-      toast({ title: 'Missing File', description: 'Please upload a VCF file.', variant: 'destructive' });
-      return;
+const handleSubmit = async () => {
+  const validation = analysisSchema.safeParse({ drugs: selectedDrugs });
+  if (!validation.success) {
+    toast({ title: 'Validation Error', description: validation.error.errors[0].message, variant: 'destructive' });
+    return;
+  }
+  if (!vcfFile) {
+    toast({ title: 'Missing File', description: 'Please upload a VCF file.', variant: 'destructive' });
+    return;
+  }
+
+  setLoading(true);
+  try {
+    const data = await analyzeVCF(vcfFile, selectedDrugs);
+    setResults(data);
+
+    // 🆕 Save to localStorage for history
+    try {
+      const history = JSON.parse(localStorage.getItem('pharma_history') || '[]');
+      const newRecords = data.map((result: AnalysisResult) => ({
+        id: crypto.randomUUID(),
+        patient_id: result.patient_id,
+        drug: result.drug,
+        risk_label: result.risk_assessment.risk_label,
+        confidence_score: result.risk_assessment.confidence_score,
+        severity: result.risk_assessment.severity,
+        result_json: result,
+        created_at: new Date().toISOString(),
+      }));
+      localStorage.setItem('pharma_history', JSON.stringify([...newRecords, ...history]));
+    } catch (storageErr) {
+      console.error('Failed to save to history:', storageErr);
     }
 
-    setLoading(true);
-    try {
-      const data = await analyzeVCF(vcfFile, selectedDrugs); // data = array of AnalysisResult
-      setResults(data);
-      toast({ title: '✓ Analysis Complete', description: `Risk assessed for ${selectedDrugs.join(', ')}` });
-    } catch (err: any) {
-      toast({
-        title: 'Analysis Failed',
-        description: err.message || 'An unexpected error occurred.',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+    toast({ title: '✓ Analysis Complete', description: `Risk assessed for ${selectedDrugs.join(', ')}` });
+  } catch (err: any) {
+    toast({
+      title: 'Analysis Failed',
+      description: err.message || 'An unexpected error occurred.',
+      variant: 'destructive',
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   const canSubmit = vcfFile && selectedDrugs.length > 0 && !loading;
 
