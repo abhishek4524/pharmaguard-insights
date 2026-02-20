@@ -5,6 +5,7 @@ PharmaGuard is a full‑stack web application that analyzes patient VCF (Variant
 ![Dashboard Screenshot](https://cdn.phototourl.com/uploads/2026-02-20-bbce89ad-e829-4285-8517-8d586925f8ce.png) <!-- Replace with actual screenshot later -->
 
 Live preview : (https://pharmaguard-nu.vercel.app/)
+
 LinkedIn video link : (https://www.linkedin.com/posts/abhishek-kumar-502b40324_rift2026-pharmaguard-pharmacogenomics-ugcPost-7430413096042553345-nRoi?utm_source=social_share_send&utm_medium=android_app&rcm=ACoAAFIJytIBAJCvvuGsa3e-oRpHhPM3GTV_C6k&utm_campaign=copy_link)
 
 ## Features
